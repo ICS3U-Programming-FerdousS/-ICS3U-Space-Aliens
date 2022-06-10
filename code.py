@@ -1,5 +1,5 @@
 # Created By: Ferdous Sediqi
-# created in : June. 2022
+# Created on: June 2022
 
 # import game
 import ugame 
