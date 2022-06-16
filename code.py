@@ -1,38 +1,105 @@
 # Created By: Ferdous Sediqi
 # Created on: June 2022
 
-# import game
-import ugame 
-# import stage
-import stage 
-
-# import constant file
+import ugame
+import stage
+# import constants file
 import constants
+#import time module 
+import time
+# import random genrator module 
+import random 
+
+# function for splash scene
+def splash_scene():
+    # add background sound file for splash scene
+    coin_sound = open("coin.wav", 'rb')
+    sound = ugame.audio
+    sound.stop()
+    sound.mute(False)
+    sound.play(coin_sound)
+      
+    # add background image
+    image_bank_mt_background = stage.Bank.from_bmp16("mt_game_studio.bmp")
+ 
+  
+    # sets background to image 0 and image bank
+    background = stage.Grid(image_bank_mt_background, constants.SCREEN_Y, constants.SCREEN_Y)
+
+    # blank white   
+    background.tile(2, 2, 0)  
+    background.tile(3, 2, 1)
+    background.tile(4, 2, 2)
+    background.tile(5, 2, 3)
+    background.tile(6, 2, 4)
+    background.tile(7, 2, 0)  
+
+    background.tile(2, 3, 0)  
+    background.tile(3, 3, 5)
+    background.tile(4, 3, 6)
+    background.tile(5, 3, 7)
+    background.tile(6, 3, 8)
+    background.tile(7, 3, 0)  
+
+    background.tile(2, 4, 0)  
+    background.tile(3, 4, 9)
+    background.tile(4, 4, 10)
+    background.tile(5, 4, 11)
+    background.tile(6, 4, 12)
+    background.tile(7, 4, 0)  
+    background.tile(2, 5, 0)  
+    background.tile(3, 5, 0)
+    background.tile(4, 5, 13)
+    background.tile(5, 5, 14)
+    background.tile(6, 5, 0)
+    background.tile(7, 5, 0) 
+
+    # creating stage background
+    game = stage.Stage(ugame.display, constants.FPS)
+    game.layers = [background]
+
+    # render background
+    game.render_block()
+    # repeat the game forever
+    while True:
+
+        # run splash scene on the screen for 2 second then go to menu scene
+        time.sleep(2.0)
+        menu_scene()
 
 def menu_scene():
   # add background image
   image_bank_mt_background = stage.Bank.from_bmp16("mt_game_studio.bmp")
-  # array for text
+
+  # list for text1
   text = []
+
   # set style the text 
   text1 = stage.Text(width = 29, height = 12, font = None, palette = constants.NEW_PALETTE, buffer = None)
   text1.move(20, 10)
   text1.text("MT Game Studios")
+
+  # append company name  to text list
   text.append(text1)
+
   # set the text style 
-  text2 = []
   text2 = stage.Text(width = 29, height = 12, font = None, palette = constants.NEW_PALETTE, buffer = None)
-  text2.move(40, 110)
+  text2.move(10, 110)
   text2.text("PRESS START BUTTON")
+
+  # append Start instruction button to text list
   text.append(text2)
   
   # sets background to image 0 and image bank
-  background = stage.Grid(image_bank_mt_background, 10, 8)  
+  background = stage.Grid(image_bank_mt_background, constants.SCREEN_X, constants.SCREEN_Y)  
+
   # creating stage background
   game = stage.Stage(ugame.display, constants.FPS)
-  game.layers = [text] + [background]
+  game.layers = text + [background]
+
   # render background
   game.render_block()
+
   # repeat the game forever
   while True:
     keys = ugame.buttons.get_pressed()
@@ -65,11 +132,17 @@ def game_scene():
 
     # set background image
     background = stage.Grid(image_bank_background, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y)
+
+    for x_location in range(constants.SCREEN_GRID_X):
+        for y_location in range(constants.SCREEN_GRID_Y):
+            tile_picked = random.randint(1, 3)
+            background.tile(x_location, y_location, tile_picked)
     ship = stage.Sprite(image_bank_sprite, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE))
     alien = stage.Sprite(image_bank_sprite, 9, int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2), 16)
 
     # create stage for the background
     game = stage.Stage(ugame.display, constants.FPS)
+
     # set layers for all sprites
     game.layers = [ship] + [alien] + [background]
     game.render_block()
@@ -83,7 +156,6 @@ def game_scene():
             # check the state of button a
             if a_button == constants.button_state["button_up"]:
                 a_button = constants.button_state["button_just_pressed"]
-                print("Pressed B")
             elif a_button == constants.button_state["button_just_pressed"]:
                 a_button = constants.button_state["button_still_pressed"]
         else:
@@ -101,14 +173,12 @@ def game_scene():
         # if statment to not let ship got out of screen
             if ship.x <= constants.SCREEN_X - constants.SPRITE_SIZE:
                 ship.move(ship.x + 1, ship.y)
-                print("Right")
             else:
                 ship.move(constants.SCREEN_X - constants.SPRITE_SIZE, ship.y)
         if keys & ugame.K_LEFT != 0:
         # if statment to not let ship got out of screen
             if ship.x >= 0:
                 ship.move((ship.x - constants.SPRITE_MOVEMENT_SPEED), ship.y)
-                print("Left")
             else:
                 ship.move(0, ship.y)
         if keys & ugame.K_UP != 0:
@@ -123,4 +193,4 @@ def game_scene():
         game.tick()
 
 if __name__ == "__main__":
-    menu_scene()
+    splash_scene()
