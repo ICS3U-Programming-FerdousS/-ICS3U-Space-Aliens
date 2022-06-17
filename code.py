@@ -3,11 +3,8 @@
 
 import ugame
 import stage
-# import constants file
 import constants
-#import time module 
 import time
-# import random genrator module 
 import random 
 
 # function for splash scene
@@ -22,7 +19,6 @@ def splash_scene():
     # add background image
     image_bank_mt_background = stage.Bank.from_bmp16("mt_game_studio.bmp")
  
-  
     # sets background to image 0 and image bank
     background = stage.Grid(image_bank_mt_background, constants.SCREEN_Y, constants.SCREEN_Y)
 
@@ -140,11 +136,18 @@ def game_scene():
     ship = stage.Sprite(image_bank_sprite, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE))
     alien = stage.Sprite(image_bank_sprite, 9, int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2), 16)
 
+    # declare list for lasers
+    lasers = []
+
+    for lasers_number in range(constants.TOTAL_NUMBER_OF_LASERS):
+        a_single_laser = stage.Sprite(image_bank_sprite, 10, constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+    lasers.append(a_single_laser)
+
     # create stage for the background
     game = stage.Stage(ugame.display, constants.FPS)
 
     # set layers for all sprites
-    game.layers = [ship] + [alien] + [background]
+    game.layers = lasers +  [ship] + [alien] + [background]
     game.render_block()
 
     # looping the scene
@@ -152,8 +155,9 @@ def game_scene():
         # get user response from pressing buttons and change the x and y axis
         keys = ugame.buttons.get_pressed()
 
-        if keys & ugame.K_X != 0:
+        if keys & ugame.K_O != 0:
             # check the state of button a
+            # print ("A pressed")
             if a_button == constants.button_state["button_up"]:
                 a_button = constants.button_state["button_just_pressed"]
             elif a_button == constants.button_state["button_just_pressed"]:
@@ -163,7 +167,8 @@ def game_scene():
                 a_button = constants.button_state["button_released"]
             else:
                 a_button = constants.button_state["button_up"]   
-        if keys & ugame.K_O != 0:
+        if keys & ugame.K_X != 0:
+            # print ("B pressed")
             pass
         if keys & ugame.K_START != 0:
             pass
@@ -185,11 +190,21 @@ def game_scene():
             pass
         if keys & ugame.K_DOWN != 0:
             pass
-        # if button is pressed keep play the sound
+        # if A button is pressed keep play the sound and change laser positions
         if a_button == constants.button_state["button_just_pressed"]:
-            sound.play(pew_sound)
-        # render gqme
-        game.render_sprites([alien] + [ship])
+            for lasers_number in range(len(lasers)):
+                if lasers[lasers_number].x < 0:
+                    lasers[lasers_number].move(ship.x, ship.y)
+                sound.play(pew_sound)
+                break
+        # loop to see if still have the laser to fire
+        for lasers_number in range(len(lasers)):
+            if lasers[lasers_number].x > 0:     
+                lasers[lasers_number].move(lasers[lasers_number].x, lasers[lasers_number].y - constants.LASER_SPEED)
+                if lasers[lasers_number].y < constants.OFF_TOP_SCREEN:
+                    lasers[lasers_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+        # render the game
+        game.render_sprites(lasers + [alien] + [ship])
         game.tick()
 
 if __name__ == "__main__":
